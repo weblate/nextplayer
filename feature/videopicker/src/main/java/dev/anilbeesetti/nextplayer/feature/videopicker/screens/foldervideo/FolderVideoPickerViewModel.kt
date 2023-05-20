@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.anilbeesetti.nextplayer.core.domain.GetSortedVideosUseCase
 import dev.anilbeesetti.nextplayer.feature.videopicker.MediaState
 import dev.anilbeesetti.nextplayer.feature.videopicker.navigation.FolderArgs
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -23,7 +24,11 @@ class FolderVideoPickerViewModel @Inject constructor(
     val folderPath = folderArgs.folderId
 
     val videoItems = getSortedVideosUseCase.invoke(folderPath)
-        .map { MediaState.Success(it) }
+        .map {
+            //To prevent jitter in the UI, a delay of 100 milliseconds is introduced before updating and rendering.
+            delay(100)
+            MediaState.Success(it)
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
